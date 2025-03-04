@@ -1,1 +1,1 @@
-export const BACKEND_API = "http://localhost:8000/";
+export const BACKEND_API = "http://reddiamonds.kz:8000/";
