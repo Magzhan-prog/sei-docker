@@ -3,13 +3,12 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from typing import List
+from typing import List, Optional
 from constants import USER, PASSWORD, HOST, PORT, DB
 
-# Замените параметры подключения на свои
+# Параметры подключения к базе данных
 DATABASE_URL = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}"
 
-# Создаем движок подключения к базе данных
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -28,6 +27,7 @@ class UserData(Base):
     chart_type = Column(String, nullable=False)
     selected_data = Column(String, nullable=False)
     primary_data = Column(String, nullable=False)
+    folder_id = Column(Integer, nullable=True)   # folder_id может быть null
 
 # Создаем таблицы, если они ещё не существуют
 Base.metadata.create_all(bind=engine)
@@ -45,15 +45,16 @@ class UserDataOut(BaseModel):
     chart_type: str
     selected_data: str
     primary_data: str 
+    folder_id: Optional[int] = None  # Значение по умолчанию None соответствует null
 
     class Config:
         orm_mode = True
 
 router = APIRouter()
 
-# Эндпоинт для получения данных для текущего пользователя (user_id из cookie)
+# Эндпоинт для получения данных текущего пользователя с возможностью фильтрации по folder_id
 @router.get("/get-data", response_model=List[UserDataOut])
-def get_data(request: Request):
+def get_data(request: Request, folder_id: Optional[int] = None):
     cookie_user_id = request.cookies.get("user_id")
     if cookie_user_id is None:
         raise HTTPException(status_code=401, detail="Пользователь не аутентифицирован")
@@ -64,7 +65,10 @@ def get_data(request: Request):
     
     db = SessionLocal()
     try:
-        records = db.query(UserData).filter(UserData.user_id == user_id).all()
+        query = db.query(UserData).filter(UserData.user_id == user_id)
+        if folder_id is not None:
+            query = query.filter(UserData.folder_id == folder_id)
+        records = query.all()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка получения данных: {e}")
     finally:

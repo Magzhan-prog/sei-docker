@@ -11,12 +11,13 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import LoadingAutocomplete from "./components/LoadingAutocomplete";
 import useFetchData from "./hooks/useFetchData";
 import { BACKEND_API } from "./constants/constants";
 import { Item } from "./components/Item";
 import DataTable from "./TestTable";
+import { Bar } from "react-chartjs-2";
 
 // Определяем шаги (фильтры) для выбора
 const steps = [
@@ -26,9 +27,10 @@ const steps = [
   "Главный классификатор",
   "Выберите данные для гарфика",
   "Тип графика",
+  "Выбор папки",
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ folders }) {
   const [activeStep, setActiveStep] = useState(0);
 
   const [selectedRows, setSelectedRows] = useState([]);
@@ -37,11 +39,18 @@ export default function Dashboard() {
     setSelectedRows(rows);
   };
 
-  const [chartType, setChartType] = useState('');
+  const [chartType, setChartType] = useState("");
+  const [folder_id, setFolder_id] = useState("");
 
   // Обработчик изменения выбора в выпадающем списке
   const handleChange = (event) => {
     setChartType(event.target.value);
+    // Здесь можно добавить логику для обновления графика
+  };
+
+  // Обработчик изменения выбора в выпадающем списке
+  const handleChangeFolderId = (event) => {
+    setFolder_id(event.target.value);
     // Здесь можно добавить логику для обновления графика
   };
 
@@ -111,7 +120,8 @@ export default function Dashboard() {
       mainClassification: null,
     });
     setSelectedRows([]);
-    setChartType('');
+    setChartType("");
+    setFolder_id("");
   };
 
   // Проверка, выбран ли вариант для текущего шага
@@ -129,6 +139,8 @@ export default function Dashboard() {
         return Boolean(selectedRows.length);
       case 5:
         return Boolean(chartType);
+      case 6:
+        return Boolean(folder_id);
       default:
         return false;
     }
@@ -269,6 +281,28 @@ export default function Dashboard() {
             </FormControl>
           </Box>
         );
+      case 6:
+        return (
+          <Box sx={{ margin: "0 auto", mt: 4 }}>
+            <FormControl fullWidth>
+              <InputLabel id="folder-id-label">Выбор папки</InputLabel>
+              <Select
+                labelId="folder-id-label"
+                id="folder-id-select"
+                value={folder_id}
+                label="Выбор папки"
+                onChange={handleChangeFolderId}
+              >
+                <MenuItem value="0">Главная папка</MenuItem>
+                {folders.map((folder) => (
+                  <MenuItem key={folder.id} value={folder.id}>
+                    {folder.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        );
       default:
         return "Неизвестный шаг";
     }
@@ -289,6 +323,7 @@ export default function Dashboard() {
         p_dicIds: selectedFilters.segment.dicId,
         idx: selectedFilters.segment.idx,
         chart_type: chartType,
+        folder_id: folder_id,
         selected_data: JSON.stringify(selectedRows),
         primary_data: JSON.stringify(indexAttributes),
       };
@@ -369,7 +404,33 @@ export default function Dashboard() {
                               ? `Количество выбранных строк: ${selectedRows.length}`
                               : "";
                           case 5:
-                            return chartType? chartType:"";
+                            let chartName = "";
+                            switch (chartType) {
+                              case "bar":
+                                chartName = "Столбчатый график";
+                                break;
+                              case "line":
+                                chartName = "Линейный график";
+                                break;
+                              case "pie":
+                                chartName = "Круговой график";
+                                break;
+                              case "doughnut":
+                                chartName = "Пончиковый график";
+                                break;
+                            }
+                            return chartName;
+                          case 6:
+                            if (folder_id == 0) {
+                              return "Главная папка" ;
+                            }
+                            else{
+                              if(folder_id) {
+                                let folder = folders.find(folder => folder.id == folder_id);
+                                return folder.name;
+                              }
+                              else return "";
+                            }
                           default:
                             return "";
                         }

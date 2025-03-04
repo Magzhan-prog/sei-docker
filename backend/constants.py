@@ -2,11 +2,11 @@
 BASE_URL = "https://taldau.stat.gov.kz/ru/Api"
 
 #DB
-USER = ""
-PASSWORD = ""
+USER = "postgres"
+PASSWORD = "1111"
 HOST = "db"
 PORT = "5432"
-DB = ""
+DB = "taldau"
 
 #cache
 CACHE_TTL = 3600

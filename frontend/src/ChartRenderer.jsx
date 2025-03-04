@@ -1,8 +1,8 @@
 import React from 'react';
-import LineChart from './LineChart';
-import BarChart from './BarChart';
-import PieChartByYear from './PieChartByYear';
-import DoughnutChartByYear from './DoughnutChartByYear';
+import LineChart from './components/LineChart/LineChart';
+import BarChart from './components/BarChart/BarChart';
+import PieChartByYear from './components/PieChartByYear/PieChartByYear';
+import DoughnutChartByYear from './components/DoughnutChartByYear/DoughnutChartByYear';
 
 const ChartRenderer = ({ chart_type, data, primary_data }) => {
   switch (chart_type) {

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   Container,
   Card,
-  CardHeader,
   CardContent,
   Typography,
   CircularProgress,
@@ -11,7 +10,8 @@ import {
   Dialog,
   AppBar,
   Toolbar,
-  Box
+  Box,
+  useMediaQuery,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
@@ -27,10 +27,24 @@ const GetItems = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
+  // Хук для адаптивности
+  const isBetween1440And2160 = useMediaQuery("(min-width:1440px) and (max-width:2159px)");
+  const isBetween2160And2880 = useMediaQuery("(min-width:2160px) and (max-width:2879px)");
+  const isAbove2880 = useMediaQuery("(min-width:2880px)");
+
+  let gridItemSize = 12; // по умолчанию 1 столбец
+  if (isBetween1440And2160) {
+    gridItemSize = 6; // 2 столбца
+  } else if (isBetween2160And2880) {
+    gridItemSize = 4; // 3 столбца
+  } else if (isAbove2880) {
+    gridItemSize = 3; // 4 столбца
+  }
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch(BACKEND_API + "get-data", {
+        const response = await fetch(BACKEND_API + "get-data?folder_id=0", {
           credentials: "include", // для отправки cookie
         });
         if (!response.ok) {
@@ -99,27 +113,24 @@ const GetItems = () => {
       <Container maxWidth={false} disableGutters>
         <Grid container spacing={2} alignItems="stretch">
           {data.map((item) => (
-            <Grid item xs={12} sm={4} md={4} key={item.id}>
+            <Grid item key={item.id} xs={gridItemSize}>
               <Card
                 sx={{
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
+                  boxShadow: 3,
                 }}
               >
-                <CardHeader
-                  action={
-                    <>
-                      <IconButton onClick={() => handleOpenDialog(item)}>
-                        <OpenInFullIcon />
-                      </IconButton>
-                      <IconButton onClick={() => handleDelete(item.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </>
-                  }
-                />
                 <CardContent sx={{ flexGrow: 1 }}>
+                  <Box sx={{ display: "flex", justifyContent: "end" }}>
+                    <IconButton onClick={() => handleOpenDialog(item)}>
+                      <OpenInFullIcon />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(item.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
                   <DataTable
                     queryParams={{
                       p_index_id: item.p_index_id,
@@ -148,14 +159,14 @@ const GetItems = () => {
         maxWidth="xl"
         PaperProps={{
           sx: {
-            m: 2, // отступы от краёв экрана
-            height: "calc(100vh - 32px)", // высота с учётом отступов (2*16px)
+            m: 2,
+            height: "calc(100vh - 32px)",
             borderRadius: 2,
           },
         }}
         BackdropProps={{
           sx: {
-            backgroundColor: "rgba(0, 0, 0, 0.7)", // более тёмный фон
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
           },
         }}
       >

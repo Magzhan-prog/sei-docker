@@ -27,6 +27,7 @@ class UserData(Base):
     chart_type = Column(String, nullable=False)
     selected_data = Column(String, nullable=False)
     primary_data = Column(String, nullable=False)
+    folder_id = Column(Integer, nullable=False)
 
 # Создаем таблицы (если они ещё не существуют)
 Base.metadata.create_all(bind=engine)
@@ -42,6 +43,7 @@ class UserDataCreate(BaseModel):
     chart_type: str
     selected_data: str
     primary_data: str 
+    folder_id: int
 
 router = APIRouter()
 
@@ -69,7 +71,8 @@ def save_data(data: UserDataCreate, request: Request):
             idx=data.idx,
             chart_type=data.chart_type,
             selected_data=data.selected_data,
-            primary_data=data.primary_data
+            primary_data=data.primary_data,
+            folder_id=data.folder_id
         )
         db.add(db_data)
         db.commit()

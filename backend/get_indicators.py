@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from constants import USER, PASSWORD, HOST, DB
 
-DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}/{DB}"  
+DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}/{DB}"  # Замените на свои данные
 engine = create_async_engine(DATABASE_URL, future=True, echo=True)
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 

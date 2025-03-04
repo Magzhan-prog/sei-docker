@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Box, Tabs, Tab } from "@mui/material";
 import PropTypes from "prop-types";
-import GetIndexAttributes from "./GetIndexAttributes";
+import GetIndexAttributes from "./components/ShowAttributes/GetIndexAttributes";
 import ChartRenderer from "./ChartRenderer";
-import DataTableComponent from "./DataTableComponent";
+import DataTableComponent from "./components/ShowTable/DataTableComponent";
 
 // Компонент для работы с вкладками (Tabs)
 function CustomTabPanel(props) {
@@ -16,7 +16,7 @@ function CustomTabPanel(props) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
     </div>
   );
 }
